@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"go-lang/api"
 	_ "go-lang/docs"
+	mongo "go-lang/repositories"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,8 +14,18 @@ import (
 func main() {
 	// Inicializa o app usando a função New do pacote api
 	app := fiber.New()
-	api.Routes(app)
+	ctx := context.Background()
 
+	// Inicia o container do MongoDB e obtém a URI
+	mongoURI := mongo.StartMongoContainer()
+
+	// Conecta ao MongoDB
+	mongo.ConnectToMongo(mongoURI)
+
+	// Configura as rotas
+	api.Routes(&ctx, app)
+
+	// Configura o Swagger
 	app.Get("/docs/*", fiberSwagger.WrapHandler)
 
 	// Inicia o servidor na porta 5000
