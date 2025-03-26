@@ -1,4 +1,21 @@
 info:
   contact: {}
-paths: {}
+paths:
+  /api/v1/healthcheck:
+    get:
+      consumes:
+      - application/json
+      description: Verifica se a API está funcionando
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health Check
+      tags:
+      - Health
 swagger: "2.0"

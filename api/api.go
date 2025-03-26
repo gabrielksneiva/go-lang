@@ -1,20 +1,13 @@
 package api
 
-import (
-	_ "api-go-lang/docs"
+import "github.com/gofiber/fiber/v2"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
-)
+func Routes(app *fiber.App) {
+	// Grupo para a versão 1
+	v1 := app.Group("/api/v1")
+	RegisterV1Routes(v1)
 
-// New creates a new Fiber instance
-func New() *fiber.App {
-	app := fiber.New()
-
-	// Registrar as rotas
-	RegisterRoutes(app)
-
-	app.Get("/docs/*", swagger.HandlerDefault)
-
-	return app
+	// Grupo para a versão 2 (quando necessário)
+	// v2 := app.Group("/api/v2")
+	// RegisterV2Routes(v2)
 }
