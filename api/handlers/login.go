@@ -27,13 +27,11 @@ var validate = validator.New()
 func LoginHandler(c *fiber.Ctx, ctx context.Context, r repositories.RedisClient) error {
 	var req LoginRequest
 
-	// Validação do request
 	err := IsValidLoginRequest(c, &req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Erro de validação: "+err.Error())
 	}
 
-	// Lógica de login
 	data, err := r.GetUser(ctx, req.Email)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao buscar dados: "+err.Error())
