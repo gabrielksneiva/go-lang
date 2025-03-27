@@ -23,23 +23,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/healthcheck:
-    get:
-      consumes:
-      - application/json
-      description: Verifica se a API está funcionando
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Health Check
-      tags:
-      - Health
   /api/v1/login:
     post:
       consumes:
@@ -106,4 +89,21 @@ paths:
       summary: Register
       tags:
       - Auth
+  /healthcheck:
+    get:
+      consumes:
+      - application/json
+      description: Verifica se a aplicação está funcionando corretamente
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Healthcheck
+      tags:
+      - Healthcheck
 swagger: "2.0"

@@ -4,26 +4,29 @@ import (
 	"context"
 	"go-lang/api"
 	_ "go-lang/docs"
-	mongo "go-lang/repositories"
+	"go-lang/repositories"
 	"log"
 
-	"github.com/gofiber/fiber/v2"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 func main() {
 	// Inicializa o app usando a função New do pacote api
-	app := fiber.New()
+
 	ctx := context.Background()
 
+	cache, err := repositories.NewRedisClient()
+	if err != nil {
+		log.Fatalf("Erro ao criar o cliente Redis: %v", err)
+	}
+
+	app := api.NewApp(ctx, *cache)
+
 	// Inicia o container do MongoDB e obtém a URI
-	mongoURI := mongo.StartMongoContainer()
+	// mongoURI := repositories.StartMongoContainer()
 
 	// Conecta ao MongoDB
-	mongo.ConnectToMongo(mongoURI)
-
-	// Configura as rotas
-	api.Routes(&ctx, app)
+	// repositories.ConnectToMongo(mongoURI)
 
 	// Configura o Swagger
 	app.Get("/docs/*", fiberSwagger.WrapHandler)

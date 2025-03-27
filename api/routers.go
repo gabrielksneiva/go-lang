@@ -3,27 +3,22 @@ package api
 import (
 	"context"
 	h "go-lang/api/handlers"
+	r "go-lang/repositories"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-// @Summary Health Check
-// @Description Verifica se a API está funcionando
-// @Tags Health
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]string
-// @Router /api/v1/healthcheck [get]
-func HealthCheck(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{"status": "ok"})
-}
+// SetupRoutes configura todas as rotas da aplicação
+func SetupRoutes(ctx context.Context, app *fiber.App, r r.RedisClient) {
+	// Grupo para a versão 1 da API
+	v1 := app.Group("/api/v1")
 
-func RegisterV1Routes(ctx *context.Context, group fiber.Router) {
-	group.Get("/healthcheck", HealthCheck)
-	group.Post("/login", func(c *fiber.Ctx) error {
-		return h.LoginHandler(c, ctx)
+	// Rotas de autenticação
+	v1.Post("/login", func(c *fiber.Ctx) error {
+		return h.LoginHandler(c, ctx, r)
 	})
-	group.Post("/register", func(c *fiber.Ctx) error {
-		return h.RegisterHandler(c, ctx)
+	v1.Post("/register", func(c *fiber.Ctx) error {
+		return h.RegisterHandler(c, ctx, r)
 	})
+
 }
