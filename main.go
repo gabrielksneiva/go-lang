@@ -4,7 +4,6 @@ import (
 	"context"
 	"go-lang/api"
 	_ "go-lang/docs"
-	"go-lang/repositories"
 	"log"
 
 	fiberSwagger "github.com/swaggo/fiber-swagger"
@@ -13,12 +12,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	cache, err := repositories.NewRedisClient()
-	if err != nil {
-		log.Fatalf("Erro ao criar o cliente Redis: %v", err)
-	}
-
-	app := api.NewApp(ctx, *cache)
+	app := api.NewApp(ctx)
 
 	// mongoURI := repositories.StartMongoContainer()
 

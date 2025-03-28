@@ -11,6 +11,11 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type DeleteRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
 func IsValidLoginRequest(c *fiber.Ctx, req *LoginRequest) error {
 	err := c.BodyParser(&req)
 	if err != nil {
@@ -20,6 +25,14 @@ func IsValidLoginRequest(c *fiber.Ctx, req *LoginRequest) error {
 }
 
 func IsValidCreateUserRequest(c *fiber.Ctx, req *mongo.User) error {
+	err := c.BodyParser(&req)
+	if err != nil {
+		return err
+	}
+	return validate.Struct(req)
+}
+
+func IsValidDeleteRequest(c *fiber.Ctx, req *DeleteRequest) error {
 	err := c.BodyParser(&req)
 	if err != nil {
 		return err

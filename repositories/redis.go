@@ -59,13 +59,13 @@ func (r *RedisClient) GetUser(ctx context.Context, key string) (*User, error) {
 		return nil, fmt.Errorf("failed to decode Base64 value: %w", err)
 	}
 
-	var user User
+	var user *User
 	err = json.Unmarshal(decodedValue, &user)
 	if err != nil {
 		return nil, fmt.Errorf("failed to deserialize JSON value: %w", err)
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (r *RedisClient) Set(ctx context.Context, key string, value interface{}) error {

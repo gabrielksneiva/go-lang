@@ -3,7 +3,8 @@ package api
 import (
 	"context"
 	_ "go-lang/docs"
-	r "go-lang/repositories"
+	"go-lang/repositories"
+	s "go-lang/services"
 
 	"github.com/gofiber/fiber/v2"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
@@ -20,10 +21,16 @@ func Healthcheck(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "OK"})
 }
 
-func NewApp(ctx context.Context, r r.RedisClient) *fiber.App {
+func NewApp(ctx context.Context) *fiber.App {
 	app := fiber.New()
+	redisCli, err := repositories.NewRedisClient()
+	if err != nil {
+		panic(err)
+	}
 
-	SetupRoutes(ctx, app, r)
+	ls := s.NewLoginService(redisCli)
+
+	SetupRoutes(ctx, app, redisCli, ls)
 
 	app.Get("/docs/*", fiberSwagger.WrapHandler)
 

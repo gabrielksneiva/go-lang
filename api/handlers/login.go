@@ -2,11 +2,10 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"go-lang/repositories"
+	s "go-lang/services"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/go-redis/redis"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,7 +23,7 @@ var validate = validator.New()
 // @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string
 // @Router /api/v1/login [post]
-func LoginHandler(c *fiber.Ctx, ctx context.Context, r repositories.RedisClient) error {
+func LoginHandler(c *fiber.Ctx, ctx context.Context, ls *s.LoginService) error {
 	var req LoginRequest
 
 	err := IsValidLoginRequest(c, &req)
@@ -32,12 +31,12 @@ func LoginHandler(c *fiber.Ctx, ctx context.Context, r repositories.RedisClient)
 		return fiber.NewError(fiber.StatusBadRequest, "Erro de validação: "+err.Error())
 	}
 
-	data, err := r.GetUser(ctx, req.Email)
+	ok, err := ls.LoginUser(ctx, req.Email, req.Password)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao buscar dados: "+err.Error())
+		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao realizar login: "+err.Error())
 	}
 
-	if data.Password == req.Password {
+	if ok {
 		return c.JSON(fiber.Map{"message": "Login realizado com sucesso"})
 	}
 
@@ -54,31 +53,33 @@ func LoginHandler(c *fiber.Ctx, ctx context.Context, r repositories.RedisClient)
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Router /api/v1/register [post]
-func RegisterHandler(c *fiber.Ctx, ctx context.Context, r repositories.RedisClient) error {
+func RegisterHandler(c *fiber.Ctx, ctx context.Context, ls *s.LoginService) error {
 	var req repositories.User
-
 	err := IsValidCreateUserRequest(c, &req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Erro de validação: "+err.Error())
 	}
 
-	data, err := r.GetUser(ctx, req.Email)
-	if err != nil && err != redis.Nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao buscar dados: "+err.Error())
-	}
-	if data != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Usuário já existe")
-	}
-
-	value, err := json.Marshal(req)
+	err = ls.CreateUser(ctx, &req)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao serializar dados: "+err.Error())
-	}
-
-	err = r.Set(ctx, req.Email, value)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao inserir dados: "+err.Error())
+		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao registrar usuário: "+err.Error())
 	}
 
 	return c.JSON(fiber.Map{"message": "Usuário registrado com sucesso"})
+}
+
+func DeleteHandler(c *fiber.Ctx, ctx context.Context, ls *s.LoginService) error {
+	var req DeleteRequest
+	var user repositories.User
+	err := IsValidDeleteRequest(c, &req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Erro de validação: "+err.Error())
+	}
+
+	err = ls.DeleteUser(ctx, &user)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Erro ao deletar usuário: "+err.Error())
+	}
+
+	return c.JSON(fiber.Map{"message": "Usuário deletado com sucesso"})
 }
