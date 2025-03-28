@@ -1,4 +1,14 @@
 definitions:
+  handlers.DeleteRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   handlers.LoginRequest:
     properties:
       email:
@@ -7,6 +17,22 @@ definitions:
         type: string
     required:
     - email
+    - password
+    type: object
+  handlers.UpdateRequest:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - id
+    - name
     - password
     type: object
   repositories.User:
@@ -23,6 +49,36 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/v1/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deleta um usuário
+      parameters:
+      - description: Corpo da requisição
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete
+      tags:
+      - Auth
   /api/v1/login:
     post:
       consumes:
@@ -87,6 +143,70 @@ paths:
               type: string
             type: object
       summary: Register
+      tags:
+      - Auth
+  /api/v1/update:
+    patch:
+      consumes:
+      - application/json
+      description: Atualiza um usuário
+      parameters:
+      - description: Corpo da requisição
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update
+      tags:
+      - Auth
+  /api/v1/user/{email}:
+    get:
+      consumes:
+      - application/json
+      description: Busca um usuário
+      parameters:
+      - description: Email do usuário
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Users
       tags:
       - Auth
   /healthcheck:
